@@ -1,0 +1,45 @@
+package olia.backend.api.usuario;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import olia.backend.api.endereco.Endereco;
+
+@Table(name = "usuarios")
+@Entity(name = "Usuario")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(of = "id")
+public class Usuario {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String nome;
+    private String email;
+    private String senha;
+    private String cpf;
+    private String telefone;
+    private String numeroNis;
+    private boolean temBolsaFamilia;
+
+    @Embedded
+    private Endereco endereco;
+
+    private boolean ativo;
+
+    public Usuario(DadosCadastroUsuario dados){
+        this.ativo = true;
+        this.nome = dados.nome();
+        this.email = dados.email();
+        this.senha = dados.senha();
+        this.cpf = dados.cpf();
+        this.telefone = dados.telefone();
+        this.temBolsaFamilia = dados.temBolsaFamilia();
+        this.numeroNis = dados.numeroNis();
+        this.endereco = new Endereco(dados.endereco());
+    }
+
+}
