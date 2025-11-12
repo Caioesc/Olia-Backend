@@ -1,6 +1,7 @@
 package olia.backend.api.escola;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -46,5 +47,36 @@ public class Escola {
         this.nome_responsavel = dados.nome_responsavel();
         this.endereco = new Endereco(dados.endereco());
         this.capacidade = dados.capacidade();
+    }
+
+    public void atualizarInformacoes(@Valid DadosAtualizacaoEscola dados) {
+        if (dados.nome() != null){
+            this.nome = dados.nome();
+        }
+        if (dados.telefone() != null){
+            this.telefone = dados.telefone();
+        }
+        if (dados.email() != null){
+            this.email = dados.email();
+        }
+        if (dados.email_acesso() != null){
+            this.email_acesso = dados.email_acesso();
+        }
+        if (dados.senha() != null){
+            this.senha = dados.senha();
+        }
+        if (dados.nome_responsavel() != null){
+            this.nome_responsavel = dados.nome_responsavel();
+        }
+        if (dados.endereco() != null){
+            this.endereco.atualizarInformacoes(dados.endereco());
+        }
+        if (dados.capacidade() != null){
+            this.capacidade = dados.capacidade();
+        }
+    }
+
+    public void excluir() {
+        this.ativo = false;
     }
 }
