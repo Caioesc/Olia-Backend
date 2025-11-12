@@ -33,4 +33,10 @@ public class UsuarioController {
         var usuario = repository.getReferenceById(dados.id());
         usuario.atualizarInformacoes(dados);
     }
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public void excluir(@PathVariable Long id){ //@PathVariable "avisa" ao Spring que o parâmetro passado se refere ao path, a url, do @DeleteMapping
+        repository.deleteById(id);
+    }
 }
