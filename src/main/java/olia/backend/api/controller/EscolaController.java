@@ -1,9 +1,7 @@
 package olia.backend.api.controller;
 
 import jakarta.validation.Valid;
-import olia.backend.api.escola.*;
-import olia.backend.api.usuario.DadosDetalhamentoUsuario;
-import org.apache.coyote.Response;
+import olia.backend.api.domain.escola.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

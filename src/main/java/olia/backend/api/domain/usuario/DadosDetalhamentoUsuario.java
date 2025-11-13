@@ -1,6 +1,6 @@
-package olia.backend.api.usuario;
+package olia.backend.api.domain.usuario;
 
-import olia.backend.api.endereco.Endereco;
+import olia.backend.api.domain.endereco.Endereco;
 
 public record DadosDetalhamentoUsuario(Long id, String nome, String email, String cpf, String telefone, String numeroNis, boolean temBolsaFamilia, Endereco endereco) {
 

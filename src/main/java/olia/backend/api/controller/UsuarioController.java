@@ -2,7 +2,7 @@ package olia.backend.api.controller;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import olia.backend.api.usuario.*;
+import olia.backend.api.domain.usuario.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

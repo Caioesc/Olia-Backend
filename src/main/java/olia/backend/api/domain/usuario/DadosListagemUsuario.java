@@ -1,4 +1,4 @@
-package olia.backend.api.usuario;
+package olia.backend.api.domain.usuario;
 
 //DTO criado para devolver apenas os dados necessários para listagem
 public record DadosListagemUsuario(Long id, String nome, String email) {

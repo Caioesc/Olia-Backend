@@ -1,4 +1,4 @@
-package olia.backend.api.escola;
+package olia.backend.api.domain.escola;
 
 public enum Capacidade {
     PEQUENA,

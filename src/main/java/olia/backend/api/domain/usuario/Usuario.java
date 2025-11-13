@@ -1,4 +1,4 @@
-package olia.backend.api.usuario;
+package olia.backend.api.domain.usuario;
 
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import olia.backend.api.endereco.Endereco;
+import olia.backend.api.domain.endereco.Endereco;
 
 @Table(name = "usuarios")
 @Entity(name = "Usuario")

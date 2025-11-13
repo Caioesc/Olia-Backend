@@ -1,6 +1,6 @@
-package olia.backend.api.escola;
+package olia.backend.api.domain.escola;
 
-import olia.backend.api.endereco.Endereco;
+import olia.backend.api.domain.endereco.Endereco;
 
 public record DadosDetalhamentoEscola(Long id, String nome, String nome_responsavel, String email, String telefone, String email_acesso, String cnpj, String codigo_inep, Endereco endereco, Capacidade capacidade) {
 

@@ -1,14 +1,11 @@
-package olia.backend.api.escola;
+package olia.backend.api.domain.escola;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import olia.backend.api.endereco.DadosEndereco;
-import olia.backend.api.endereco.Endereco;
+import olia.backend.api.domain.endereco.DadosEndereco;
 
 public record DadosCadastroEscola(
 

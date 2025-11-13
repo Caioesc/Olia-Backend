@@ -1,7 +1,7 @@
-package olia.backend.api.escola;
+package olia.backend.api.domain.escola;
 
 import jakarta.validation.constraints.NotNull;
-import olia.backend.api.endereco.DadosEndereco;
+import olia.backend.api.domain.endereco.DadosEndereco;
 
 public record DadosAtualizacaoEscola(
 

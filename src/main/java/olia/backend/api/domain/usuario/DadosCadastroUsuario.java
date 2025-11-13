@@ -1,12 +1,11 @@
-package olia.backend.api.usuario;
+package olia.backend.api.domain.usuario;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import olia.backend.api.endereco.DadosEndereco;
-import olia.backend.api.endereco.Endereco;
+import olia.backend.api.domain.endereco.DadosEndereco;
 
 public record DadosCadastroUsuario(
 

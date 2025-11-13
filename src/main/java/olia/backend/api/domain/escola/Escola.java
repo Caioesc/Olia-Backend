@@ -1,4 +1,4 @@
-package olia.backend.api.escola;
+package olia.backend.api.domain.escola;
 
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import olia.backend.api.endereco.Endereco;
+import olia.backend.api.domain.endereco.Endereco;
 
 @Table(name = "escolas")
 @Entity(name = "Escola")

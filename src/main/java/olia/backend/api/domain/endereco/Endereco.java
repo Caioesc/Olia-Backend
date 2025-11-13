@@ -1,4 +1,4 @@
-package olia.backend.api.endereco;
+package olia.backend.api.domain.endereco;
 
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;

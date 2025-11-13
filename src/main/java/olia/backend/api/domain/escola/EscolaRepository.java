@@ -1,4 +1,4 @@
-package olia.backend.api.escola;
+package olia.backend.api.domain.escola;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
