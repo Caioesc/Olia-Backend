@@ -39,5 +39,6 @@ public class CarteiraPontos {
         this.criadoEm = LocalDateTime.now();
         if (this.id == null)
             this.id = java.util.UUID.randomUUID().toString();
+
     }
 }

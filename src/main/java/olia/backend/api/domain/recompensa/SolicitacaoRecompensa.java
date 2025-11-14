@@ -45,4 +45,5 @@ public class SolicitacaoRecompensa {
         if (this.id == null)
             this.id = java.util.UUID.randomUUID().toString();
     }
+
 }

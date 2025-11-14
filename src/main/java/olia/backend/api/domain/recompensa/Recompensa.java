@@ -50,4 +50,5 @@ public class Recompensa {
     public void aoAtualizar() {
         this.atualizadoEm = LocalDateTime.now();
     }
+
 }
