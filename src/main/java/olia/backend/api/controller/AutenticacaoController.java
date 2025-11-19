@@ -3,6 +3,7 @@ package olia.backend.api.controller;
 import jakarta.validation.Valid;
 import olia.backend.api.domain.usuario.DadosAutenticacao;
 import olia.backend.api.domain.usuario.Usuario;
+import olia.backend.api.infra.security.DadosTokenJWT;
 import olia.backend.api.infra.security.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +26,11 @@ public class AutenticacaoController {
 
     @PostMapping
     public ResponseEntity efetuarLogin(@RequestBody @Valid DadosAutenticacao dados){
-        var token = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha()); //Recebe nosso DTO com email e senha e cria um DTO do Spring
-        var authentication = manager.authenticate(token);
+        var authenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha()); //Recebe nosso DTO com email e senha e cria um DTO do Spring
+        var authentication = manager.authenticate(authenticationToken);
 
-        return ResponseEntity.ok(tokenService.gerarToken((Usuario) authentication.getPrincipal()));
+        var tokenJWT = tokenService.gerarToken((Usuario) authentication.getPrincipal());
+
+        return ResponseEntity.ok(new DadosTokenJWT(tokenJWT));
     }
 }
