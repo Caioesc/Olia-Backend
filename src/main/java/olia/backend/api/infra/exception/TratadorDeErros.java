@@ -1,4 +1,4 @@
-package olia.backend.api.infra;
+package olia.backend.api.infra.exception;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
