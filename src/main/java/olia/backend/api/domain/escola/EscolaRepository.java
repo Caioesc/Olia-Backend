@@ -6,4 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EscolaRepository extends JpaRepository<Escola, Long> {
     Page<Escola> findAllByAtivoTrue(Pageable paginacao);
+
+    Escola findByEmail_acesso(String emailAcesso);
 }
