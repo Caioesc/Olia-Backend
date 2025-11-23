@@ -23,18 +23,20 @@ public class SecurityConfigurations {
 
     //A anotação @Bean serve para exportar uma classe para o Spring, fazendo com que ele consiga carregá-la e realizar a sua injeção de dependência em outras classes.
 
-    @Bean //Serve para expor o retorno do médodo  ---> esse método desabilita a proteção contra csrf, pois a utenticação via token já é uma proteção para isso
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return
-                http.csrf(csrf -> csrf.disable())
-                        .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                        .authorizeHttpRequests(req -> {
-                            req.requestMatchers(HttpMethod.POST,"/login").permitAll();
-                            req.requestMatchers(HttpMethod.POST, "/usuarios").permitAll();
-                            req.requestMatchers(HttpMethod.POST, "/escolas").permitAll();
-                            req.anyRequest().authenticated();
-                        }).addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
-                        .build();
+        return http
+                .csrf(csrf -> csrf.disable())
+                .cors(cors -> {})  // <--- HABILITA CORS
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(req -> req
+                        .requestMatchers(HttpMethod.POST, "/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/usuarios").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/escolas").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
 

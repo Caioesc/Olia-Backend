@@ -2,14 +2,14 @@ package olia.backend.api.domain.usuario;
 
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import olia.backend.api.domain.endereco.Endereco;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Collection;
 import java.util.List;
@@ -17,6 +17,7 @@ import java.util.List;
 @Table(name = "usuarios")
 @Entity(name = "Usuario")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = "id")
@@ -41,7 +42,7 @@ public class Usuario implements UserDetails {
         this.ativo = true;
         this.nome = dados.nome();
         this.email = dados.email();
-        this.senha = dados.senha();
+        this.senha = new BCryptPasswordEncoder().encode(dados.senha());
         this.cpf = dados.cpf();
         this.telefone = dados.telefone();
         this.temBolsaFamilia = dados.temBolsaFamilia();
