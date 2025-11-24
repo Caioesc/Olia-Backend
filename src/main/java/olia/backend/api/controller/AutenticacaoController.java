@@ -48,7 +48,7 @@ public class AutenticacaoController {
     @PostMapping("/escola")
     public ResponseEntity loginEscola(@RequestBody @Valid DadosAutenticacao dados) {
         // 1. Busca a escola pelo email de acesso
-        var escola = escolaRepository.findByEmail_acesso(dados.email());
+        var escola = escolaRepository.buscarPorEmailDeAcesso(dados.email());
 
         // 2. Verifica se existe e se a senha bate
         if (escola != null && passwordEncoder.matches(dados.senha(), escola.getPassword())) {
