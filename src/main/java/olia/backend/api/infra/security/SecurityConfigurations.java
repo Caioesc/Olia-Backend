@@ -49,7 +49,7 @@ public class SecurityConfigurations {
         CorsConfiguration configuration = new CorsConfiguration();
         
         // Permite apenas o seu Frontend
-        configuration.setAllowedOrigins(List.of("http://localhost:4200")); 
+        configuration.setAllowedOrigins(List.of("http://localhost:4200", "https://olia-31nil2uak-bielmonetas-projects.vercel.app", "https://olia.vercel.app", "*"));
         
         // Permite os métodos necessários
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"));
