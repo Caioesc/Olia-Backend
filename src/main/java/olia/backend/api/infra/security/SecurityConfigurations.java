@@ -55,6 +55,9 @@ public class SecurityConfigurations {
                 "https://olia-delta.vercel.app"
         ));
 
+        configuration.addAllowedOriginPattern("http://localhost:*");
+        configuration.addAllowedOriginPattern("https://*.vercel.app");
+
 
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
