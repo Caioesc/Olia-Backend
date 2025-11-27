@@ -34,6 +34,7 @@ public class Escola implements UserDetails {
     private String email_acesso;
     private String senha;
     private String nome_responsavel;
+    private String horario;
 
     @Embedded
     private Endereco endereco;
@@ -55,6 +56,7 @@ public class Escola implements UserDetails {
         this.nome_responsavel = dados.nome_responsavel();
         this.endereco = new Endereco(dados.endereco());
         this.capacidade = dados.capacidade();
+        this.horario = dados.horario();
     }
 
     public void criptografarSenha(PasswordEncoder passwordEncoder) {
