@@ -50,9 +50,11 @@ public class SecurityConfigurations {
 
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4200",
+                "https://olia.vercel.app",
                 "https://olia-lr1xeipuj-bielmonetas-projects.vercel.app",
-                "https://olia.vercel.app"
+                "https://olia-delta.vercel.app"
         ));
+
 
         configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
