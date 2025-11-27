@@ -32,32 +32,36 @@ public class SecurityConfigurations {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(req -> {
-                    req.requestMatchers("/login", "/login/**").permitAll();
-                    req.requestMatchers("/usuarios", "/usuarios/**").permitAll();
-                    req.requestMatchers("/escolas", "/escolas/**").permitAll();
-                    req.anyRequest().authenticated();
-
-                    req.anyRequest().authenticated();
-                })
+                .authorizeHttpRequests(req -> req
+                        .requestMatchers("/login", "/login/**").permitAll()
+                        .requestMatchers("/usuarios", "/usuarios/**").permitAll()
+                        .requestMatchers("/escolas", "/escolas/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // 🔥 PRE-FLIGHT LIBERADO
+                        .anyRequest().authenticated()
+                )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    // 3. CRIAMOS A REGRA DO CORS (O "Visto" para o Angular)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
-        // Permite apenas o seu Frontend
-        configuration.setAllowedOrigins(List.of("http://localhost:4200", "https://olia-31nil2uak-bielmonetas-projects.vercel.app", "https://olia.vercel.app", "*"));
-        
-        // Permite os métodos necessários
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"));
-        
-        // Permite cabeçalhos (Authorization, Content-Type, etc)
+
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://olia-lr1xeipuj-bielmonetas-projects.vercel.app",
+                "https://olia.vercel.app"
+        ));
+
+        configuration.setAllowedMethods(Arrays.asList(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS"
+        ));
+
         configuration.setAllowedHeaders(List.of("*"));
-        
+
+        configuration.setAllowCredentials(true); // 🔥 IMPORTANTE!!
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
