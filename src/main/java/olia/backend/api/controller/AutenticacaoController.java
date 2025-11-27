@@ -1,6 +1,7 @@
 package olia.backend.api.controller;
 
 import jakarta.validation.Valid;
+import olia.backend.api.domain.escola.EscolaRepository;
 import olia.backend.api.domain.usuario.DadosAutenticacao;
 import olia.backend.api.domain.usuario.Usuario;
 import olia.backend.api.infra.security.DadosTokenJWT;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +26,12 @@ public class AutenticacaoController {
     @Autowired
     private TokenService tokenService;
 
+    @Autowired
+    private EscolaRepository escolaRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @PostMapping
     public ResponseEntity efetuarLogin(@RequestBody @Valid DadosAutenticacao dados){
         var authenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha()); //Recebe nosso DTO com email e senha e cria um DTO do Spring
@@ -35,5 +43,23 @@ public class AutenticacaoController {
 
         // Envia o token e o nome
         return ResponseEntity.ok(new DadosTokenJWT(tokenJWT, usuarioLogado.getNome(), usuarioLogado.getId()));
+    }
+
+    @PostMapping("/escola")
+    public ResponseEntity loginEscola(@RequestBody @Valid DadosAutenticacao dados) {
+        // 1. Busca a escola pelo email de acesso
+        var escola = escolaRepository.buscarPorEmailDeAcesso(dados.email());
+
+        // 2. Verifica se existe e se a senha bate
+        if (escola != null && passwordEncoder.matches(dados.senha(), escola.getPassword())) {
+            
+            // 3. Gera o token
+            var token = tokenService.gerarToken(escola);
+            
+            // 4. Retorna Token, Nome e ID
+            return ResponseEntity.ok(new DadosTokenJWT(token, escola.getNome(), escola.getId()));
+        }
+
+        return ResponseEntity.badRequest().body("Login inválido");
     }
 }

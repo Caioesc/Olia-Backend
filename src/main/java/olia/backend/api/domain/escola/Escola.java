@@ -1,5 +1,13 @@
 package olia.backend.api.domain.escola;
 
+import java.util.Collection;
+import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -14,7 +22,7 @@ import olia.backend.api.domain.endereco.Endereco;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Escola {
+public class Escola implements UserDetails {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,6 +34,7 @@ public class Escola {
     private String email_acesso;
     private String senha;
     private String nome_responsavel;
+    private String horario;
 
     @Embedded
     private Endereco endereco;
@@ -47,6 +56,11 @@ public class Escola {
         this.nome_responsavel = dados.nome_responsavel();
         this.endereco = new Endereco(dados.endereco());
         this.capacidade = dados.capacidade();
+        this.horario = dados.horario();
+    }
+
+    public void criptografarSenha(PasswordEncoder passwordEncoder) {
+        this.senha = passwordEncoder.encode(this.senha);
     }
 
     public void atualizarInformacoes(@Valid DadosAtualizacaoEscola dados) {
@@ -79,4 +93,28 @@ public class Escola {
     public void excluir() {
         this.ativo = false;
     }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_ESCOLA"));
+    }
+
+    @Override
+    public String getPassword() {
+        return senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return email_acesso; // Usamos o email_acesso para login
+    }
+
+    @Override
+    public boolean isAccountNonExpired() { return true; }
+    @Override
+    public boolean isAccountNonLocked() { return true; }
+    @Override
+    public boolean isCredentialsNonExpired() { return true; }
+    @Override
+    public boolean isEnabled() { return ativo; } // Só loga se estiver ativa
 }

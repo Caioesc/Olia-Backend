@@ -42,6 +42,9 @@ public record DadosCadastroEscola(
         String email_acesso,
 
         @NotBlank
-        String senha
+        String senha,
+
+        @NotBlank
+        String horario
 ) {
 }
