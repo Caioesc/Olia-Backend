@@ -33,10 +33,11 @@ public class SecurityConfigurations {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
-                    req.requestMatchers("/login").permitAll();
-                    req.requestMatchers("/login/escola").permitAll();
-                    req.requestMatchers("/usuarios").permitAll();
-                    req.requestMatchers("/escolas").permitAll();
+                    req.requestMatchers("/login", "/login/**").permitAll();
+                    req.requestMatchers("/usuarios", "/usuarios/**").permitAll();
+                    req.requestMatchers("/escolas", "/escolas/**").permitAll();
+                    req.anyRequest().authenticated();
+
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
