@@ -57,4 +57,14 @@ public class DoacaoController {
 
         return ResponseEntity.ok(lista);
     }
+
+    @GetMapping("/escola/{id}")
+    public ResponseEntity<List<DadosListagemDoacao>> listarPorEscola(@PathVariable Long id) {
+        var lista = repository.findAllByEscolaId(id)
+                .stream()
+                .map(DadosListagemDoacao::new)
+                .toList();
+
+        return ResponseEntity.ok(lista);
+    }
 }
