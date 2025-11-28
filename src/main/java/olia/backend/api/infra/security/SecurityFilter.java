@@ -4,6 +4,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import olia.backend.api.domain.escola.EscolaRepository;
 import olia.backend.api.domain.usuario.UsuarioRepository; // Importe do domain
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,20 +21,33 @@ public class SecurityFilter extends OncePerRequestFilter {
     private TokenService tokenService;
 
     @Autowired
-    private UsuarioRepository repository;
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private EscolaRepository escolaRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
         var tokenJWT = recuperarToken(request);
 
         if (tokenJWT != null) {
-            var subject = tokenService.getSubject(tokenJWT); // Pega o email do token
-            
-            // Busca o usuário (agora o método existe!)
-            UserDetails usuario = repository.findByEmail(subject);
+            var subject = tokenService.getSubject(tokenJWT); // O email
 
-            var authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // 1. Tenta achar como USUÁRIO
+            UserDetails user = usuarioRepository.findByEmail(subject);
+
+            // 2. Se não achou, tenta achar como ESCOLA
+            if (user == null) {
+                // (Use o método que criamos antes: buscarPorEmailDeAcesso)
+                user = escolaRepository.buscarPorEmailDeAcesso(subject);
+            }
+
+            // 3. Se achou alguém (seja usuário ou escola), autentica!
+            if (user != null) {
+                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
 
         filterChain.doFilter(request, response);
