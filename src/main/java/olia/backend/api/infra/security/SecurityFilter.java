@@ -32,21 +32,25 @@ public class SecurityFilter extends OncePerRequestFilter {
         var tokenJWT = recuperarToken(request);
 
         if (tokenJWT != null) {
-            var subject = tokenService.getSubject(tokenJWT); // O email
+            try {
+                // Tenta validar o token. Se falhar, vai para o catch e segue o fluxo sem logar.
+                var subject = tokenService.getSubject(tokenJWT);
 
-            // 1. Tenta achar como USUÁRIO
-            UserDetails user = usuarioRepository.findByEmail(subject);
+                UserDetails user = usuarioRepository.findByEmail(subject);
 
-            // 2. Se não achou, tenta achar como ESCOLA
-            if (user == null) {
-                // (Use o método que criamos antes: buscarPorEmailDeAcesso)
-                user = escolaRepository.buscarPorEmailDeAcesso(subject);
-            }
+                if (user == null) {
+                    user = escolaRepository.buscarPorEmailDeAcesso(subject);
+                }
 
-            // 3. Se achou alguém (seja usuário ou escola), autentica!
-            if (user != null) {
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                if (user != null) {
+                    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+            } catch (Exception e) {
+                // Token inválido ou expirado?
+                // Não faz nada, apenas não autentica.
+                // O Spring Security vai decidir lá na frente se bloqueia (403) ou deixa passar (se for login).
+                System.out.println("Token inválido ignorado no filtro: " + e.getMessage());
             }
         }
 
