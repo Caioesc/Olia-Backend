@@ -55,4 +55,11 @@ public class Doacao {
         this.data = LocalDate.now(); 
         this.status = StatusDoacao.PENDENTE; // Começa sempre como pendente
     }
+
+    public void confirmar(Double quantidadeReal) {
+    this.status = StatusDoacao.CONCLUIDO;
+    if (quantidadeReal != null && quantidadeReal > 0) {
+        this.quantidade = quantidadeReal; // Atualiza com o valor real medido
+    }
+}
 }

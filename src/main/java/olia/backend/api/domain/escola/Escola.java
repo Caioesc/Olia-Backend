@@ -24,7 +24,8 @@ import olia.backend.api.domain.endereco.Endereco;
 @EqualsAndHashCode(of = "id")
 public class Escola implements UserDetails {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
     private String cnpj;
@@ -35,6 +36,7 @@ public class Escola implements UserDetails {
     private String senha;
     private String nome_responsavel;
     private String horario;
+    private Integer metaAtual;
 
     @Embedded
     private Endereco endereco;
@@ -44,7 +46,7 @@ public class Escola implements UserDetails {
 
     private boolean ativo;
 
-    public Escola(DadosCadastroEscola dados){
+    public Escola(DadosCadastroEscola dados) {
         this.ativo = true;
         this.nome = dados.nome();
         this.cnpj = dados.cnpj();
@@ -57,6 +59,20 @@ public class Escola implements UserDetails {
         this.endereco = new Endereco(dados.endereco());
         this.capacidade = dados.capacidade();
         this.horario = dados.horario();
+        this.metaAtual = switch (this.capacidade) {
+            case PEQUENA -> 500; // Até 50L
+            case MEDIA -> 1000; // Até 100L
+            case GRANDE -> 2000; // Acima de 200L
+        };
+    }
+
+    // Método chamado quando a escola resgata uma recompensa
+    public void aumentarMetaAposResgate() {
+        if (this.metaAtual == null) {
+            this.metaAtual = 500; // Valor padrão de segurança
+        }
+        // Aumenta a meta em 50% e converte para inteiro
+        this.metaAtual = (int) (this.metaAtual * 1.5);
     }
 
     public void criptografarSenha(PasswordEncoder passwordEncoder) {
@@ -64,28 +80,28 @@ public class Escola implements UserDetails {
     }
 
     public void atualizarInformacoes(@Valid DadosAtualizacaoEscola dados) {
-        if (dados.nome() != null){
+        if (dados.nome() != null) {
             this.nome = dados.nome();
         }
-        if (dados.telefone() != null){
+        if (dados.telefone() != null) {
             this.telefone = dados.telefone();
         }
-        if (dados.email() != null){
+        if (dados.email() != null) {
             this.email = dados.email();
         }
-        if (dados.email_acesso() != null){
+        if (dados.email_acesso() != null) {
             this.email_acesso = dados.email_acesso();
         }
-        if (dados.senha() != null){
+        if (dados.senha() != null) {
             this.senha = dados.senha();
         }
-        if (dados.nome_responsavel() != null){
+        if (dados.nome_responsavel() != null) {
             this.nome_responsavel = dados.nome_responsavel();
         }
-        if (dados.endereco() != null){
+        if (dados.endereco() != null) {
             this.endereco.atualizarInformacoes(dados.endereco());
         }
-        if (dados.capacidade() != null){
+        if (dados.capacidade() != null) {
             this.capacidade = dados.capacidade();
         }
     }
@@ -96,7 +112,7 @@ public class Escola implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_ESCOLA"));
+        return List.of(new SimpleGrantedAuthority("ESCOLA"));
     }
 
     @Override
@@ -110,11 +126,22 @@ public class Escola implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
     @Override
-    public boolean isEnabled() { return ativo; } // Só loga se estiver ativa
+    public boolean isEnabled() {
+        return ativo;
+    } // Só loga se estiver ativa
 }

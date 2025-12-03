@@ -32,18 +32,24 @@ public class SecurityConfigurations {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(req -> req
-                        .requestMatchers("/login", "/login/**").permitAll()
-                        .requestMatchers("/usuarios", "/usuarios/**").permitAll()
-                        .requestMatchers("/escolas", "/escolas/**").permitAll()
-                        .requestMatchers("/error").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // 🔥 PRE-FLIGHT LIBERADO
-                        .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests(req -> {
+                    req.requestMatchers("/login").permitAll();
+                    req.requestMatchers("/login/escola").permitAll();
+                    req.requestMatchers("/usuarios").permitAll();
+                    req.requestMatchers("/escolas").permitAll();
+                    req.requestMatchers("/escolas/ranking").permitAll();
+                    req.requestMatchers("/login/governo").permitAll();
+                    req.requestMatchers("/governo").permitAll();
+                    req.requestMatchers("/governo/impacto").permitAll();
+                    req.requestMatchers("/coletas").permitAll();
+                    req.requestMatchers("/recompensas").authenticated();
+                    req.anyRequest().authenticated();
+                })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
+    // 3. CRIAMOS A REGRA DO CORS (O "Visto" para o Angular)
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -65,7 +71,7 @@ public class SecurityConfigurations {
 
         configuration.setAllowedHeaders(List.of("*"));
 
-        configuration.setAllowCredentials(true); // 🔥 IMPORTANTE!!
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

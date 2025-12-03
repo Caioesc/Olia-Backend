@@ -3,6 +3,7 @@ package olia.backend.api.controller;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import olia.backend.api.domain.doacao.DadosCadastroDoacao;
+import olia.backend.api.domain.doacao.DadosConfirmacaoDoacao;
 import olia.backend.api.domain.doacao.DadosListagemDoacao;
 import olia.backend.api.domain.doacao.Doacao;
 import olia.backend.api.domain.doacao.DoacaoRepository;
@@ -56,5 +57,23 @@ public class DoacaoController {
                 .toList();
 
         return ResponseEntity.ok(lista);
+    }
+
+    @GetMapping("/escola/{id}")
+    public ResponseEntity<List<DadosListagemDoacao>> listarPorEscola(@PathVariable Long id) {
+        var lista = repository.findAllByEscolaId(id)
+                .stream()
+                .map(DadosListagemDoacao::new)
+                .toList();
+
+        return ResponseEntity.ok(lista);
+    }
+
+    @PutMapping("/confirmar")
+    @Transactional
+    public ResponseEntity confirmarRecebimento(@RequestBody DadosConfirmacaoDoacao dados) {
+        var doacao = repository.getReferenceById(dados.idDoacao());
+        doacao.confirmar(dados.quantidadeReal());
+        return ResponseEntity.ok().build();
     }
 }

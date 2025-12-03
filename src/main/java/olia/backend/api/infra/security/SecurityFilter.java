@@ -4,11 +4,14 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import olia.backend.api.domain.usuario.UsuarioRepository;
+import olia.backend.api.domain.escola.EscolaRepository;
+import olia.backend.api.domain.governo.Governo;
+import olia.backend.api.domain.governo.GovernoRepository;
+import olia.backend.api.domain.usuario.UsuarioRepository; // Importe do domain
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetails; // Importe UserDetails
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
@@ -20,42 +23,44 @@ public class SecurityFilter extends OncePerRequestFilter {
     private TokenService tokenService;
 
     @Autowired
-    private UsuarioRepository repository;
+    private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private EscolaRepository escolaRepository;
+
+    @Autowired
+    private GovernoRepository governoRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        String path = request.getRequestURI();
-
-        // 🔓 IGNORA rotas públicas — evita NULL no usuario e 500
-        if (path.startsWith("/login") ||
-                path.startsWith("/usuarios") ||
-                path.startsWith("/escolas")) {
-
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        // 🔐 Daqui pra frente só rotas protegidas
         var tokenJWT = recuperarToken(request);
 
         if (tokenJWT != null) {
+            try {
+                var subject = tokenService.getSubject(tokenJWT);
 
-            var subject = tokenService.getSubject(tokenJWT); // email
+                // 1. Tenta achar como USUÁRIO
+                UserDetails user = usuarioRepository.findByEmail(subject);
 
-            UserDetails usuario = repository.findByEmail(subject);
+                // 2. Se não achou, tenta achar como ESCOLA
+                if (user == null) {
+                    user = escolaRepository.buscarPorEmailDeAcesso(subject);
+                }
 
-            // Proteção extra caso o usuário não exista mais
-            if (usuario != null) {
-                var authentication = new UsernamePasswordAuthenticationToken(
-                        usuario,
-                        null,
-                        usuario.getAuthorities()
-                );
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                // 3. Se ainda não achou, tenta achar como GOVERNO
+                if (user == null) {
+                    user = governoRepository.findByEmail(subject);
+                }
+
+                // 4. Se achou alguém em qualquer tabela, autentica!
+                if (user != null) {
+                    var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                }
+
+            } catch (Exception e) {
+                System.out.println("Token inválido ignorado no filtro: " + e.getMessage());
             }
         }
 

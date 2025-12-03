@@ -9,7 +9,19 @@ public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
 
     List<Doacao> findAllByUsuarioId(Long id);
 
-    //soma o óleo recebido por uma escola específica
-    @Query("SELECT COALESCE(SUM(d.quantidade), 0) FROM Doacao d WHERE d.escola.id = :idEscola")
-    Double totalDoadoPorEscola(Long idEscola);
+    List<Doacao> findAllByEscolaId(Long id);
+
+    java.util.Optional<Doacao> findByCodigo(String codigo);
+
+    @Query("SELECT COALESCE(SUM(d.quantidade), 0) FROM Doacao d WHERE d.escola.id = :idEscola AND d.status = :status")
+    Double somarTotalPorEscolaEStatus(Long idEscola, StatusDoacao status);
+
+    // Contagem
+    @Query("SELECT COUNT(d) FROM Doacao d WHERE d.escola.id = :idEscola AND d.status = :status")
+    Integer contarPorEscolaEStatus(Long idEscola, StatusDoacao status);
+
+    // Soma TOTAL de todo o sistema (apenas confirmadas)
+    @Query("SELECT COALESCE(SUM(d.quantidade), 0) FROM Doacao d WHERE d.status = 'CONCLUIDO'")
+    Double somarTotalGlobal();
+    
 }
