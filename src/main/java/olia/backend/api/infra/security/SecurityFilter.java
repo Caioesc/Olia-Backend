@@ -5,6 +5,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import olia.backend.api.domain.escola.EscolaRepository;
+import olia.backend.api.domain.governo.Governo;
+import olia.backend.api.domain.governo.GovernoRepository;
 import olia.backend.api.domain.usuario.UsuarioRepository; // Importe do domain
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +28,9 @@ public class SecurityFilter extends OncePerRequestFilter {
     @Autowired
     private EscolaRepository escolaRepository;
 
+    @Autowired
+    private GovernoRepository governoRepository;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -33,23 +38,28 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         if (tokenJWT != null) {
             try {
-                // Tenta validar o token. Se falhar, vai para o catch e segue o fluxo sem logar.
                 var subject = tokenService.getSubject(tokenJWT);
 
+                // 1. Tenta achar como USUÁRIO
                 UserDetails user = usuarioRepository.findByEmail(subject);
 
+                // 2. Se não achou, tenta achar como ESCOLA
                 if (user == null) {
                     user = escolaRepository.buscarPorEmailDeAcesso(subject);
                 }
 
+                // 3. Se ainda não achou, tenta achar como GOVERNO
+                if (user == null) {
+                    user = governoRepository.findByEmail(subject);
+                }
+
+                // 4. Se achou alguém em qualquer tabela, autentica!
                 if (user != null) {
                     var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
+
             } catch (Exception e) {
-                // Token inválido ou expirado?
-                // Não faz nada, apenas não autentica.
-                // O Spring Security vai decidir lá na frente se bloqueia (403) ou deixa passar (se for login).
                 System.out.println("Token inválido ignorado no filtro: " + e.getMessage());
             }
         }

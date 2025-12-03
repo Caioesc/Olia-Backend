@@ -37,6 +37,12 @@ public class SecurityConfigurations {
                     req.requestMatchers("/login/escola").permitAll();
                     req.requestMatchers("/usuarios").permitAll();
                     req.requestMatchers("/escolas").permitAll();
+                    req.requestMatchers("/escolas/ranking").permitAll();
+                    req.requestMatchers("/login/governo").permitAll();
+                    req.requestMatchers("/governo").permitAll();
+                    req.requestMatchers("/governo/impacto").permitAll();
+                    req.requestMatchers("/coletas").permitAll();
+                    req.requestMatchers("/recompensas").authenticated();
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
@@ -47,28 +53,29 @@ public class SecurityConfigurations {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
+
         // Permite apenas o seu Frontend
-        configuration.setAllowedOrigins(List.of("http://localhost:4200")); 
-        
+        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+
         // Permite os métodos necessários
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"));
-        
+        configuration.setAllowedMethods(
+                Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "TRACE", "CONNECT"));
+
         // Permite cabeçalhos (Authorization, Content-Type, etc)
         configuration.setAllowedHeaders(List.of("*"));
-        
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

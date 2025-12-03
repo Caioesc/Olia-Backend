@@ -22,4 +22,7 @@ public interface EscolaRepository extends JpaRepository<Escola, Long> {
         ORDER BY SUM(d.quantidade) DESC
     """)
     List<Object[]> buscarRankingBruto();
+
+    // Conta quantas escolas existem
+    long count();
 }

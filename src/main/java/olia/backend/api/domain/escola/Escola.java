@@ -112,7 +112,7 @@ public class Escola implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_ESCOLA"));
+        return List.of(new SimpleGrantedAuthority("ESCOLA"));
     }
 
     @Override
