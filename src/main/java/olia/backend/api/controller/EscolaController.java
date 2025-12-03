@@ -1,6 +1,9 @@
 package olia.backend.api.controller;
 
 import jakarta.validation.Valid;
+import olia.backend.api.domain.coleta.Coleta;
+import olia.backend.api.domain.coleta.ColetaRepository;
+import olia.backend.api.domain.coleta.StatusColeta;
 import olia.backend.api.domain.doacao.DoacaoRepository;
 import olia.backend.api.domain.doacao.StatusDoacao;
 import olia.backend.api.domain.escola.*;
@@ -31,6 +34,9 @@ public class EscolaController {
 
     @Autowired
     private DoacaoRepository doacaoRepository;
+
+    @Autowired
+    private ColetaRepository coletaRepository;
 
     @PostMapping
     @Transactional
@@ -78,52 +84,53 @@ public class EscolaController {
         return ResponseEntity.ok(page);
     }
 
-    @GetMapping("/dashboard/{id}")
+@GetMapping("/dashboard/{id}")
     public ResponseEntity detalharDashboard(@PathVariable Long id) {
         var escola = repository.getReferenceById(id);
 
-        // 1. Buscar doações confirmadas
-        Double totalColetado = doacaoRepository.somarTotalPorEscolaEStatus(id, StatusDoacao.CONCLUIDO);
-        if (totalColetado == null)
-            totalColetado = 0.0;
+        // 1. ENTRADA: Total de doações recebidas (Para pontos e histórico)
+        Double totalEntrada = doacaoRepository.somarTotalPorEscolaEStatus(id, StatusDoacao.CONCLUIDO);
+        if (totalEntrada == null) totalEntrada = 0.0;
 
+        // 2. SAÍDA: Total coletado pelo governo (Para esvaziar o tanque)
+        Double totalSaida = coletaRepository.somarTotalColetadoPorEscola(id, StatusColeta.CONCLUIDA); 
+        if (totalSaida == null) totalSaida = 0.0;
+
+        // 3. OCUPAÇÃO ATUAL: O que tem no tanque agora
+        Double ocupacaoAtual = totalEntrada - totalSaida;
+        if (ocupacaoAtual < 0) ocupacaoAtual = 0.0; // Segurança contra negativos
+
+        // 4. Pontos continuam baseados no histórico total (escola não perde pontos ao esvaziar)
+        Integer pontosAtuais = (int) (totalEntrada * 10);
+        
+        // 5. Coletas Realizadas
         Integer coletasRealizadas = doacaoRepository.contarPorEscolaEStatus(id, StatusDoacao.CONCLUIDO);
 
-        // 2. Calcular Pontos (1L = 10 pontos)
-        Integer pontosAtuais = (int) (totalColetado * 10);
-
-        // 3. Capacidade Máxima em Litros
+        // 6. Capacidade Máxima
         double capacidadeLitros = switch (escola.getCapacidade()) {
             case PEQUENA -> 50.0;
             case MEDIA -> 100.0;
             case GRANDE -> 200.0;
         };
 
-        // 4. REGRA DA META: A meta é encher o tanque inteiro (em pontos)
-        // Meta = Capacidade * 10
-        // Ex: Se cabe 50L, a meta é 500 pontos.
-        Integer metaPontos = (int) (capacidadeLitros * 10);
+        // 7. Porcentagem do Tanque (Baseada na Ocupação Atual)
+        Double porcentagemTanque = (ocupacaoAtual / capacidadeLitros) * 100;
+        if (porcentagemTanque > 100.0) porcentagemTanque = 100.0;
 
-        // Se você quiser manter a lógica de aumentar a meta depois (gamificação),
-        // pode verificar se escola.getMetaAtual() > metaPontos.
-        // Por enquanto, vamos usar a regra fixa da capacidade:
+        // 8. Meta Dinâmica
+        Integer metaPontos = (int) (capacidadeLitros * 10);
         if (escola.getMetaAtual() != null && escola.getMetaAtual() > metaPontos) {
             metaPontos = escola.getMetaAtual();
         }
 
-        // 5. Porcentagem da CAPACIDADE FÍSICA (Para a barra de cima)
-        Double porcentagemTanque = (totalColetado / capacidadeLitros) * 100;
-        if (porcentagemTanque > 100.0)
-            porcentagemTanque = 100.0;
-
         var dados = new DadosDashboardEscola(
                 escola.getNome(),
-                totalColetado,
+                totalEntrada,      // Mostra o total histórico acumulado
                 coletasRealizadas,
                 pontosAtuais,
                 capacidadeLitros,
-                totalColetado,
-                porcentagemTanque,
+                ocupacaoAtual,     // <--- Mostra quanto tem AGORA
+                porcentagemTanque, // <--- Barra baseada no atual
                 metaPontos
         );
 
