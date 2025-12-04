@@ -49,11 +49,15 @@ public class SecurityConfigurations {
                     // COLETAS
                     req.requestMatchers("/coletas", "/coletas/**").permitAll();
 
+                    req.requestMatchers("/dev-fix/**").permitAll();
+
+
                     // RECOMPENSAS (somente autenticado)
                     req.requestMatchers("/recompensas", "/recompensas/**").authenticated();
 
                     // QUALQUER OUTRO ENDPOINT
-                    req.anyRequest().authenticated();
+
+
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
