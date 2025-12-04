@@ -11,12 +11,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -33,58 +32,60 @@ public class SecurityConfigurations {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
+                    // LOGIN
                     req.requestMatchers("/login").permitAll();
                     req.requestMatchers("/login/escola").permitAll();
+                    req.requestMatchers("/login/governo").permitAll();
+
+                    // PÚBLICOS
                     req.requestMatchers("/usuarios").permitAll();
                     req.requestMatchers("/escolas").permitAll();
                     req.requestMatchers("/escolas/ranking").permitAll();
-                    req.requestMatchers("/login/governo").permitAll();
                     req.requestMatchers("/governo").permitAll();
                     req.requestMatchers("/governo/impacto").permitAll();
                     req.requestMatchers("/coletas").permitAll();
+
+                    // PRIVADOS
                     req.requestMatchers("/recompensas").authenticated();
+
+                    // QUALQUER OUTRO:
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    // 3. CRIAMOS A REGRA DO CORS (O "Visto" para o Angular)
+    /**
+     * CORS UNIVERSAL E COMPATÍVEL COM RAILWAY + VERCEL
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration config = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of(
-                "http://localhost:4200",
-                "https://olia.vercel.app",
-                "https://olia-lr1xeipuj-bielmonetas-projects.vercel.app",
-                "https://olia-delta.vercel.app"
-        ));
+        // Aceita qualquer domínio (produçao, dev, localhost, Vercel, etc)
+        config.setAllowedOriginPatterns(List.of("*"));
 
-        configuration.addAllowedOriginPattern("http://localhost:*");
-        configuration.addAllowedOriginPattern("https://*.vercel.app");
-
-
-        configuration.setAllowedMethods(Arrays.asList(
+        config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
 
-        configuration.setAllowedHeaders(List.of("*"));
+        config.setAllowedHeaders(List.of("*"));
 
-        configuration.setAllowCredentials(true);
+        // ESSENCIAL PARA FUNCIONAR EM PRODUÇÃO
+        config.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", config);
         return source;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception{
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder(){
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
