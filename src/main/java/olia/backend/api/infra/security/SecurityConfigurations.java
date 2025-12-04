@@ -11,11 +11,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -32,50 +33,55 @@ public class SecurityConfigurations {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
+
                     // LOGIN
-                    req.requestMatchers("/login").permitAll();
-                    req.requestMatchers("/login/escola").permitAll();
-                    req.requestMatchers("/login/governo").permitAll();
+                    req.requestMatchers("/login", "/login/**").permitAll();
 
-                    // PÚBLICOS
-                    req.requestMatchers("/usuarios").permitAll();
-                    req.requestMatchers("/escolas").permitAll();
-                    req.requestMatchers("/escolas/ranking").permitAll();
-                    req.requestMatchers("/governo").permitAll();
-                    req.requestMatchers("/governo/impacto").permitAll();
-                    req.requestMatchers("/coletas").permitAll();
+                    // USUÁRIOS
+                    req.requestMatchers("/usuarios", "/usuarios/**").permitAll();
 
-                    // PRIVADOS
-                    req.requestMatchers("/recompensas").authenticated();
+                    // ESCOLAS
+                    req.requestMatchers("/escolas", "/escolas/**").permitAll();
 
-                    // QUALQUER OUTRO:
+                    // GOVERNO
+                    req.requestMatchers("/governo", "/governo/**").permitAll();
+
+                    // COLETAS
+                    req.requestMatchers("/coletas", "/coletas/**").permitAll();
+
+                    // RECOMPENSAS (somente autenticado)
+                    req.requestMatchers("/recompensas", "/recompensas/**").authenticated();
+
+                    // QUALQUER OUTRO ENDPOINT
                     req.anyRequest().authenticated();
                 })
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-    /**
-     * CORS UNIVERSAL E COMPATÍVEL COM RAILWAY + VERCEL
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration();
 
-        // Aceita qualquer domínio (produçao, dev, localhost, Vercel, etc)
-        config.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://olia.vercel.app",
+                "https://olia-lr1xeipuj-bielmonetas-projects.vercel.app",
+                "https://olia-delta.vercel.app"
+        ));
 
-        config.setAllowedMethods(List.of(
+        configuration.addAllowedOriginPattern("http://localhost:*");
+        configuration.addAllowedOriginPattern("https://*.vercel.app");
+
+        configuration.setAllowedMethods(Arrays.asList(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));
 
-        config.setAllowedHeaders(List.of("*"));
-
-        // ESSENCIAL PARA FUNCIONAR EM PRODUÇÃO
-        config.setAllowCredentials(false);
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration("/**", configuration);
         return source;
     }
 
