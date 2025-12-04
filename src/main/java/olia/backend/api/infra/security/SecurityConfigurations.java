@@ -49,9 +49,7 @@ public class SecurityConfigurations {
                     // COLETAS
                     req.requestMatchers("/coletas", "/coletas/**").permitAll();
 
-                    req.requestMatchers("/dev-fix/**").permitAll();
-
-
+                    req.requestMatchers("/doacoes", "/doacoes/**").permitAll();
                     // RECOMPENSAS (somente autenticado)
                     req.requestMatchers("/recompensas", "/recompensas/**").authenticated();
 
