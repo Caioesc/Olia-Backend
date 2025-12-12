@@ -34,6 +34,8 @@ public class SecurityConfigurations {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
 
+                    req.requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll();
+
                     // LOGIN
                     req.requestMatchers("/login", "/login/**").permitAll();
 
